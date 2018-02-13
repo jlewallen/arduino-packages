@@ -55,4 +55,4 @@ static void __halt() {
 		;
 }
 void svcHook(void)    __attribute__ ((weak, alias("__halt")));
-void pendSVHook(void) __attribute__ ((weak, alias("__halt")));
+// void pendSVHook(void) __attribute__ ((weak, alias("__halt")));

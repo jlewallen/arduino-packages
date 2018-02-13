@@ -81,9 +81,15 @@ uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
     // Connected to slave
     for (byteRead = 1; byteRead < quantity; ++byteRead)
     {
+        // Serial.print(".");
       sercom->prepareAckBitWIRE();                          // Prepare Acknowledge
-      sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_READ); // Prepare the ACK command for the slave
-      rxBuffer.store_char(sercom->readDataWIRE());          // Read data and send the ACK
+      sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_READ); // Prepare the ACK
+                                                            // slave
+      auto c = sercom->readDataWIRE();
+      if (c < 0) {
+          return false;
+      }
+      rxBuffer.store_char(c);          // Read data and send the ACK
     }
     sercom->prepareNackBitWIRE();                           // Prepare NACK to stop slave transmission
     //sercom->readDataWIRE();                               // Clear data register to send NACK

@@ -18,6 +18,7 @@
 
 #include "SERCOM.h"
 #include "variant.h"
+#include "delay.h"
 
 SERCOM::SERCOM(Sercom* s)
 {
@@ -468,13 +469,22 @@ void SERCOM::prepareAckBitWIRE( void )
   }
 }
 
+void wire_error() {
+    Serial5.println("Wire error");
+}
+
 void SERCOM::prepareCommandBitsWire(uint8_t cmd)
 {
   if(isMasterWIRE()) {
     sercom->I2CM.CTRLB.bit.CMD = cmd;
 
+    auto started = millis();
     while(sercom->I2CM.SYNCBUSY.bit.SYSOP)
     {
+        if (millis() - started > 1000) {
+            wire_error();
+            return;
+        }
       // Waiting for synchronization
     }
   } else {
@@ -488,7 +498,13 @@ bool SERCOM::startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag
   address = (address << 0x1ul) | flag;
 
   // Wait idle or owner bus mode
-  while ( !isBusIdleWIRE() && !isBusOwnerWIRE() );
+  auto started = millis();
+  while ( !isBusIdleWIRE() && !isBusOwnerWIRE() ) {
+      if (millis() - started > 1000) {
+          wire_error();
+          return false;
+      }
+  }
 
   // Send start and address
   sercom->I2CM.ADDR.bit.ADDR = address;
@@ -499,6 +515,10 @@ bool SERCOM::startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag
     while( !sercom->I2CM.INTFLAG.bit.MB )
     {
       // Wait transmission complete
+        if (millis() - started > 1000) {
+            wire_error();
+            return false;
+        }
     }
   }
   else  // Read mode
@@ -512,6 +532,10 @@ bool SERCOM::startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag
             return false;
         }
       // Wait transmission complete
+        if (millis() - started > 1000) {
+            wire_error();
+            return false;
+        }
     }
 
     // Clean the 'Slave on Bus' flag, for further usage.
@@ -622,13 +646,18 @@ int SERCOM::availableWIRE( void )
     return sercom->I2CS.INTFLAG.bit.DRDY;
 }
 
-uint8_t SERCOM::readDataWIRE( void )
+int16_t SERCOM::readDataWIRE( void )
 {
+  auto started = millis();
   if(isMasterWIRE())
   {
     while( sercom->I2CM.INTFLAG.bit.SB == 0 )
     {
       // Waiting complete receive
+        if (millis() - started > 1000) {
+            wire_error();
+            return -1;
+        }
     }
 
     return sercom->I2CM.DATA.bit.DATA ;
