@@ -18,6 +18,7 @@
 
 #include "SERCOM.h"
 #include "variant.h"
+#include "delay.h"
 
 SERCOM::SERCOM(Sercom* s)
 {
@@ -609,12 +610,16 @@ int SERCOM::availableWIRE( void )
     return sercom->I2CS.INTFLAG.bit.DRDY;
 }
 
-uint8_t SERCOM::readDataWIRE( void )
+int16_t SERCOM::readDataWIRE( void )
 {
   if(isMasterWIRE())
   {
+    auto started = millis();
     while( sercom->I2CM.INTFLAG.bit.SB == 0 )
     {
+      if (millis() - started > 500) {
+        return -1;
+      }
       // Waiting complete receive
     }
 

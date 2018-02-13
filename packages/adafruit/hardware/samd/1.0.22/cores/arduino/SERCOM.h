@@ -205,7 +205,7 @@ class SERCOM
 		bool isMasterReadOperationWIRE( void ) ;
     bool isRXNackReceivedWIRE( void ) ;
 		int availableWIRE( void ) ;
-		uint8_t readDataWIRE( void ) ;
+		int16_t readDataWIRE( void ) ;
 
 	private:
 		Sercom* sercom;
