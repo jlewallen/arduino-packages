@@ -512,13 +512,37 @@ void SERCOM::prepareCommandBitsWire(uint8_t cmd)
   }
 }
 
+class Timer {
+private:
+    uint32_t started_;
+
+public:
+    Timer() {
+        started_ = millis();
+    }
+
+public:
+    bool ticking(uint32_t duration = 1000) {
+        return (millis() - started_) < duration;
+    }
+
+    bool done(uint32_t duration = 1000) {
+        return !ticking(duration);
+    }
+};
+
 bool SERCOM::startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag)
 {
   // 7-bits address + 1-bits R/W
   address = (address << 0x1ul) | flag;
 
+  Timer timer;
   // Wait idle or owner bus mode
-   while ( !isBusIdleWIRE() && !isBusOwnerWIRE() );
+  while ( !isBusIdleWIRE() && !isBusOwnerWIRE() ) {
+      if (timer.done()) {
+          return false;
+      }
+  }
 
   // Send start and address
   sercom->I2CM.ADDR.bit.ADDR = address;
@@ -526,13 +550,18 @@ bool SERCOM::startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag
   // Address Transmitted
   if ( flag == WIRE_WRITE_FLAG ) // Write mode
   {
+    timer = Timer{ };
     while( !sercom->I2CM.INTFLAG.bit.MB )
     {
       // Wait transmission complete
+      if (timer.done()) {
+        return false;
+      }
     }
   }
   else  // Read mode
   {
+    timer = Timer{ };
     while( !sercom->I2CM.INTFLAG.bit.SB )
     {
         // If the slave NACKS the address, the MB bit will be set.
@@ -542,6 +571,9 @@ bool SERCOM::startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag
             return false;
         }
       // Wait transmission complete
+        if (timer.done()) {
+            return false;
+        }
     }
 
     // Clean the 'Slave on Bus' flag, for further usage.
@@ -566,12 +598,16 @@ bool SERCOM::sendDataMasterWIRE(uint8_t data)
   sercom->I2CM.DATA.bit.DATA = data;
 
   //Wait transmission successful
+  Timer timer;
   while(!sercom->I2CM.INTFLAG.bit.MB) {
 
     // If a bus error occurs, the MB bit may never be set.
     // Check the bus error bit and bail if it's set.
     if (sercom->I2CM.STATUS.bit.BUSERR) {
       return false;
+    }
+    if (timer.done()) {
+        return false;
     }
   }
 
@@ -656,8 +692,10 @@ uint8_t SERCOM::readDataWIRE( void )
 {
   if(isMasterWIRE())
   {
+    Timer timer;
     while( sercom->I2CM.INTFLAG.bit.SB == 0 )
     {
+        if (timer.done()) return 0xff;
       // Waiting complete receive
     }
 
