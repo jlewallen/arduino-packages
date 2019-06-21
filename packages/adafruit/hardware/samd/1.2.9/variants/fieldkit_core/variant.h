@@ -96,7 +96,7 @@ static const uint8_t A1  =   (uint8_t)(-1);
 #define PIN_SPI_MISO         (38u)
 #define PIN_SPI_MOSI         (18u)
 #define PIN_SPI_SCK          (19u)
-#define PERIPH_SPI           sercom0
+#define PERIPH_SPI           sercom4
 #define PAD_SPI_TX           SPI_PAD_0_SCK_1
 #define PAD_SPI_RX           SERCOM_RX_PAD_3
 
@@ -108,7 +108,14 @@ static const uint8_t A1  =   (uint8_t)(-1);
 /*
  * Wire Interfaces
  */
-#define WIRE_INTERFACES_COUNT 0
+#define WIRE_INTERFACES_COUNT 1
+
+// PORTB20   SDA
+// PORTB21   SCL
+#define PIN_WIRE_SDA         (20u)
+#define PIN_WIRE_SCL         (21u)
+#define PERIPH_WIRE          sercom3
+#define WIRE_IT_HANDLER      SERCOM3_Handler
 
 /*
  * USB
