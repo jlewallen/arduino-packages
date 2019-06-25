@@ -60,7 +60,7 @@ extern "C"
  *----------------------------------------------------------------------------*/
 
 // Number of pins defined in PinDescription array
-#define PINS_COUNT                  (94u)
+#define PINS_COUNT                  (97u)
 #define NUM_DIGITAL_PINS            (53u)
 #define NUM_ANALOG_INPUTS           (16u)
 #define NUM_ANALOG_OUTPUTS          (2u)
@@ -84,26 +84,44 @@ static const uint8_t A1  =   (uint8_t)(-1);
 
 #define ADC_RESOLUTION		12
 
+// Serial1
+#define PIN_SERIAL1_RX       (0ul)
+#define PIN_SERIAL1_TX       (1ul)
+#define PAD_SERIAL1_TX       (UART_TX_PAD_0)
+#define PAD_SERIAL1_RX       (SERCOM_RX_PAD_1)
+
 /*
  * SPI Interfaces
  */
-#define SPI_INTERFACES_COUNT 1
+#define SPI_INTERFACES_COUNT 2
 
-// PORTB15 38  Pad3 MISO
-// PORTB12 18  Pad0 MOSI
-// PORTB13 19  Pad1 SCK
-// PORTB14 39  Pad2
-#define PIN_SPI_MISO         (38u)
-#define PIN_SPI_MOSI         (18u)
-#define PIN_SPI_SCK          (19u)
+
+#define PIN_SPI_MISO         (38u) // PB15   SERCOM4_PAD3 MISO
+#define PIN_SPI_MOSI         (18u) // PB12   SERCOM4_PAD0 MOSI
+#define PIN_SPI_SCK          (19u) // PB13   SERCOM4_PAD1 SCK
 #define PERIPH_SPI           sercom4
-#define PAD_SPI_TX           SPI_PAD_0_SCK_1
-#define PAD_SPI_RX           SERCOM_RX_PAD_3
+#define PAD_SPI_TX           SPI_PAD_0_SCK_1  // (TX) MISO = SERCOM4.0, SCK = SERCOM4.1
+#define PAD_SPI_RX           SERCOM_RX_PAD_3  // (RX) MISO = SERCOM4.3
+
+
+#define PIN_SPI1_MISO        (80u) // PB29   SERCOM2_PAD3 MISO
+#define PIN_SPI1_MOSI        (82u) // PB26   SERCOM2_PAD0 MOSI
+#define PIN_SPI1_SCK         (81u) // PB27   SERCOM2_PAD1 SCK
+#define PERIPH_SPI1          sercom2
+#define PAD_SPI1_TX          SPI_PAD_0_SCK_1  // (TX) MOSI = SERCOM2.0, SCK = SERCOM2.1
+#define PAD_SPI1_RX          SERCOM_RX_PAD_3  // (RX) MISO = SERCOM2.3
+
+#define WINC1501_SPI         SPI1
 
 // SPI_PAD_0_SCK_1 = 0,
 // SPI_PAD_2_SCK_3,
 // SPI_PAD_3_SCK_1,
 // SPI_PAD_0_SCK_3
+
+// SERCOM_RX_PAD_0 = 0,
+// SERCOM_RX_PAD_1,
+// SERCOM_RX_PAD_2,
+// SERCOM_RX_PAD_3
 
 /*
  * Wire Interfaces
@@ -187,6 +205,8 @@ extern SERCOM sercom5;
 extern SERCOM sercom6;
 extern SERCOM sercom7;
 
+extern Uart Serial1;
+
 #endif
 
 // These serial port names are intended to allow libraries and architecture-neutral
@@ -206,6 +226,9 @@ extern SERCOM sercom7;
 //                            pins are NOT connected to anything by default.
 #define SERIAL_PORT_USBVIRTUAL      Serial
 #define SERIAL_PORT_MONITOR         Serial
+
+#define SERIAL_PORT_HARDWARE        Serial1
+#define SERIAL_PORT_HARDWARE_OPEN   Serial1
 
 #endif /* _VARIANT_FIELDKIT_CORE_ */
 
