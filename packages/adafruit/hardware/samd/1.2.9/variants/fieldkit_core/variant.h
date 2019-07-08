@@ -96,7 +96,7 @@ static const uint8_t A1  =   (uint8_t)(-1);
 /*
  * SPI Interfaces
  */
-#define SPI_INTERFACES_COUNT 2
+#define SPI_INTERFACES_COUNT 3
 
 #define PIN_SPI_MISO         (38u) // PB15   SERCOM4_PAD3 MISO
 #define PIN_SPI_MOSI         (18u) // PB12   SERCOM4_PAD0 MOSI
@@ -112,7 +112,15 @@ static const uint8_t A1  =   (uint8_t)(-1);
 #define PAD_SPI1_TX          SPI_PAD_0_SCK_1  // (TX) MOSI = SERCOM2.0, SCK = SERCOM2.1
 #define PAD_SPI1_RX          SERCOM_RX_PAD_3  // (RX) MISO = SERCOM2.3
 
+#define PIN_SPI2_MISO        (29u) // PB19 SERCOM5/PAD[3]
+#define PIN_SPI2_MOSI        (14u) // PB16 SERCOM5/PAD[0]
+#define PIN_SPI2_SCK         (15u) // PB17 SERCOM5/PAD[1]
+#define PERIPH_SPI2          sercom5
+#define PAD_SPI2_TX          SPI_PAD_0_SCK_1  // (TX) MOSI = SERCOM5.0, SCK = SERCOM5.1
+#define PAD_SPI2_RX          SERCOM_RX_PAD_3  // (RX) MISO = SERCOM5.3
+
 #define WINC1501_SPI         SPI1
+#define SD_SPI               SPI2
 
 // SPI_PAD_0_SCK_1 = 0,
 // SPI_PAD_2_SCK_3,
