@@ -135,21 +135,22 @@ static const uint8_t A1  =   (uint8_t)(-1);
 /*
  * Wire Interfaces
  */
-#define WIRE_INTERFACES_COUNT 2
+#define WIRE_INTERFACES_COUNT 3
 
-// PORTB20   SDA
-// PORTB21   SCL
 #define PIN_WIRE_SDA         (20u)
 #define PIN_WIRE_SCL         (21u)
 #define PERIPH_WIRE          sercom3
 #define WIRE_IT_HANDLER      SERCOM3_Handler
 
-// PC22   SDA
-// PC23   SCL
 #define PIN_WIRE1_SDA        (16u) // PC22  SERCOM1.0 (PAD[0] = SDA) SERCOM3.1  (PAD[1] = SCL)
 #define PIN_WIRE1_SCL        (17u) // PC23  SERCOM1.1 (PAD[1] = SCL) SERCOM3.0  (PAD[0] = SDA)
 #define PERIPH_WIRE1         sercom1
 #define WIRE1_IT_HANDLER     SERCOM1_Handler
+
+#define PIN_WIRE2_SDA        (24u) // PC16  SERCOM6.0 (PAD[0] = SDA) SERCOM0.1  (PAD[1] = SCL)
+#define PIN_WIRE2_SCL        (25u) // PC17  SERCOM6.1 (PAD[1] = SCL) SERCOM0.0  (PAD[0] = SDA)
+#define PERIPH_WIRE2         sercom6
+#define WIRE2_IT_HANDLER     SERCOM6_Handler
 
 /*
  * USB
