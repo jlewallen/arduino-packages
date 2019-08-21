@@ -122,6 +122,11 @@ static const uint8_t A1  =   (uint8_t)(-1);
 #define WINC1501_SPI         SPI1
 #define SD_SPI               SPI2
 
+static const uint8_t SS   = 0;
+static const uint8_t MOSI = 0;
+static const uint8_t MISO = 0;
+static const uint8_t SCK  = 0;
+
 // SPI_PAD_0_SCK_1 = 0,
 // SPI_PAD_2_SCK_3,
 // SPI_PAD_3_SCK_1,
