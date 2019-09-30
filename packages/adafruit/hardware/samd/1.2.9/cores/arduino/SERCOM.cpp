@@ -27,6 +27,25 @@
 #define WIRE_RISE_TIME_NANOSECONDS 125
 #endif
 
+class Timer {
+private:
+    uint32_t counter_;
+
+public:
+    Timer() {
+        counter_ = 0;
+    }
+
+public:
+    bool ticking(uint32_t duration = 1000) {
+        return counter_++ < duration * 1000;
+    }
+
+    bool done(uint32_t duration = 1000) {
+        return !ticking(duration);
+    }
+};
+
 SERCOM::SERCOM(Sercom* s)
 {
   sercom = s;
@@ -389,7 +408,12 @@ void SERCOM::resetWIRE()
   sercom->I2CM.CTRLA.bit.SWRST = 1;
 
   //Wait both bits Software Reset from CTRLA and SYNCBUSY are equal to 0
-  while(sercom->I2CM.CTRLA.bit.SWRST || sercom->I2CM.SYNCBUSY.bit.SWRST);
+  Timer timer;
+  while(sercom->I2CM.CTRLA.bit.SWRST || sercom->I2CM.SYNCBUSY.bit.SWRST) {
+      if (timer.done()) {
+          break; // TODO ERROR?
+      }
+  }
 }
 
 void SERCOM::enableWIRE()
@@ -399,17 +423,25 @@ void SERCOM::enableWIRE()
   // Enable the I2C master mode
   sercom->I2CM.CTRLA.bit.ENABLE = 1 ;
 
+  Timer timer;
   while ( sercom->I2CM.SYNCBUSY.bit.ENABLE != 0 )
   {
     // Waiting the enable bit from SYNCBUSY is equal to 0;
+      if (timer.done()) {
+          break; // TODO ERROR?
+      }
   }
 
   // Setting bus idle mode
   sercom->I2CM.STATUS.bit.BUSSTATE = 1 ;
 
+  timer = { };
   while ( sercom->I2CM.SYNCBUSY.bit.SYSOP != 0 )
   {
     // Wait the SYSOP bit from SYNCBUSY coming back to 0
+      if (timer.done()) {
+          break; // TODO ERROR?
+      }
   }
 }
 
@@ -420,9 +452,13 @@ void SERCOM::disableWIRE()
   // Enable the I2C master mode
   sercom->I2CM.CTRLA.bit.ENABLE = 0 ;
 
+  Timer timer;
   while ( sercom->I2CM.SYNCBUSY.bit.ENABLE != 0 )
   {
-    // Waiting the enable bit from SYNCBUSY is equal to 0;
+      // Waiting the enable bit from SYNCBUSY is equal to 0;
+      if (timer.done()) {
+          break; // TODO ERROR?
+      }
   }
 }
 
@@ -446,9 +482,13 @@ void SERCOM::initSlaveWIRE( uint8_t ucAddress, bool enableGeneralCall )
                               SERCOM_I2CS_INTENSET_AMATCH | // Address Match
                               SERCOM_I2CS_INTENSET_DRDY ;   // Data Ready
 
+  Timer timer;
   while ( sercom->I2CM.SYNCBUSY.bit.SYSOP != 0 )
   {
     // Wait the SYSOP bit from SYNCBUSY to come back to 0
+      if (timer.done()) {
+          break; // TODO ERROR?
+      }
   }
 }
 
@@ -503,33 +543,18 @@ void SERCOM::prepareCommandBitsWire(uint8_t cmd)
   if(isMasterWIRE()) {
     sercom->I2CM.CTRLB.bit.CMD = cmd;
 
+    Timer timer;
     while(sercom->I2CM.SYNCBUSY.bit.SYSOP)
     {
       // Waiting for synchronization
+        if (timer.done()) {
+            return; // TODO ERROR
+        }
     }
   } else {
     sercom->I2CS.CTRLB.bit.CMD = cmd;
   }
 }
-
-class Timer {
-private:
-    uint32_t started_;
-
-public:
-    Timer() {
-        started_ = millis();
-    }
-
-public:
-    bool ticking(uint32_t duration = 1000) {
-        return (millis() - started_) < duration;
-    }
-
-    bool done(uint32_t duration = 1000) {
-        return !ticking(duration);
-    }
-};
 
 bool SERCOM::startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag)
 {
@@ -942,9 +967,13 @@ void SERCOM::initClockNVIC( void )
                       GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
                       GCLK_CLKCTRL_CLKEN ;
 
+  Timer timer;
   while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
   {
-    /* Wait for synchronization */
+      /* Wait for synchronization */
+      if (timer.done()) {
+          break;
+      }
   }
 #endif
 }
