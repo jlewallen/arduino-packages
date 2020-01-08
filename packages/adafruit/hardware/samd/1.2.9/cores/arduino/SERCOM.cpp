@@ -359,8 +359,12 @@ uint8_t SERCOM::transferDataSPI(uint8_t data)
 {
   sercom->SPI.DATA.bit.DATA = data; // Writing data into Data register
 
+  Timer timer;
   while( sercom->SPI.INTFLAG.bit.RXC == 0 )
   {
+    if (timer.done()) {
+        return 0xff;
+    }
     // Waiting Complete Reception
   }
 
