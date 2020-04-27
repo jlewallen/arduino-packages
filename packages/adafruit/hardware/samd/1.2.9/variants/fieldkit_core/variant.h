@@ -60,8 +60,8 @@ extern "C"
  *----------------------------------------------------------------------------*/
 
 // Number of pins defined in PinDescription array
-#define PINS_COUNT                  (97u)
-#define NUM_DIGITAL_PINS            (97u)
+#define PINS_COUNT                  (98u)
+#define NUM_DIGITAL_PINS            (98u)
 #define NUM_ANALOG_INPUTS            (0u)
 #define NUM_ANALOG_OUTPUTS           (0u)
 
@@ -231,4 +231,3 @@ extern Uart Serial1;
 #define SERIAL_PORT_HARDWARE_OPEN   Serial1
 
 #endif /* _VARIANT_FIELDKIT_CORE_ */
-
