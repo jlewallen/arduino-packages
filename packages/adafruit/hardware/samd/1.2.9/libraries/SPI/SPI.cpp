@@ -78,7 +78,7 @@ void SPIClass::config(SPISettings settings)
 
 void SPIClass::end()
 {
-  _p_sercom->resetSPI();
+  _p_sercom->disableSPI();
   initialized = false;
 }
 
